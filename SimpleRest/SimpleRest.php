@@ -1,14 +1,36 @@
 <?php 
+/*
+  project: Simple Rest Class
+  modify by: NottDev
+  modify at: 30/01/19
+*/
 
 class SimpleRest
 {
-  public $httpVersion = "HTTP/1.1";
+  public $httpVersion;
+  public $contentType;
 
-  public function setHttpResponse($contentType, $statusCode)
+  public function __construct($contentType = "application/json")
+  {
+    $this->httpVersion = "HTTP/1.1";
+    $this->contentType = $contentType;
+  }
+
+  public function setContentType($contentType)
+  {
+    $this->contentType = $contentType;
+  }
+
+  public function getContentType()
+  {
+    return $this->contentType;
+  }
+
+  public function setHttpStatus($statusCode)
   {
     $statusMessage = $this->getHttpStatusMessage($statusCode);
     header($this->httpVersion . " " . $statusCode . " " . $statusMessage);
-    header("Content-Type:" . $contentType);
+    header("Content-Type:" . $this->contentType);
   }
 
   public function getHttpStatusMessage($statusCode)
@@ -58,7 +80,7 @@ class SimpleRest
       return (isset($httpStatus[$statusCode])) ? $httpStatus[$statusCode] : 'Internal Server Error';
   }
 
-  public function encodeHtml($responseData) {
+  public function encodeHTML($responseData) {
 		$htmlResponse = "<table border='1'>";
 		foreach($responseData as $key=>$value) {
     			$htmlResponse .= "<tr><td>". $key. "</td><td>". $value. "</td></tr>";
@@ -72,12 +94,32 @@ class SimpleRest
 		return $jsonResponse;		
 	}
 	
-	public function encodeXml($responseData) {
+	public function encodeXML($responseData) {
 		// creating object of SimpleXMLElement
 		$xml = new SimpleXMLElement('<?xml version="1.0"?><data></data>');
 		foreach($responseData as $key=>$value) {
 			$xml->addChild($key, $value);
 		}
 		return $xml->asXML();
-	}
+  }
+
+  public function response($data)
+  {
+    $encodedRespone;
+    if(strpos($this->contentType, "text/plain") !== false) {
+      $encodedRespone = $data;
+    } elseif (strpos($this->contentType,"application/json") !== false) {
+      $encodedRespone = $this->encodeJSON($data);
+    } elseif (strpos($this->contentType,"application/javascript") !== false) {
+      $encodedRespone = $this->encodeJSON($data);
+    } elseif (strpos($this->contentType,"application/xml") !== false) {
+      $encodedRespone = $this->encodeXML($data);
+    } elseif (strpos($this->contentType,"text/xml") !== false) {
+      $encodedRespone = $this->encodeXML($data);
+    } elseif (strpos($this->contentType, "text/html") !== false) {
+      $encodedRespone = $this->encodeHTML($data);
+    }
+    return $encodedRespone;
+  }
+  
 }
