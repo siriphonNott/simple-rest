@@ -3,13 +3,12 @@
 class SimpleRest
 {
   public $httpVersion = "HTTP/1.1";
-  public $contentType = "Content-Type:";
 
   public function setHttpResponse($contentType, $statusCode)
   {
     $statusMessage = $this->getHttpStatusMessage($statusCode);
     header($this->httpVersion . " " . $statusCode . " " . $statusMessage);
-    header($this->contentType . $contentType);
+    header("Content-Type:" . $contentType);
   }
 
   public function getHttpStatusMessage($statusCode)
